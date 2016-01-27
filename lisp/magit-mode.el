@@ -682,13 +682,14 @@ window."
 
 (defvar inhibit-magit-refresh nil)
 
-(defun magit-refresh ()
+(defun magit-refresh (&optional head)
   "Refresh some buffers belonging to the current repository.
 
 Refresh the current buffer if its major mode derives from
 `magit-mode', and refresh the corresponding status buffer.
 
-Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
+Run hooks `magit-pre-refresh-hook', `magit-post-refresh-hook',
+and `magit-refresh-file-visiting-buffers-hook'."
   (interactive)
   (unless inhibit-magit-refresh
     (let ((start (current-time))
@@ -704,6 +705,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (with-current-buffer it
           (magit-refresh-buffer)))
       (magit-auto-revert-buffers)
+      (magit-refresh-file-visiting-buffers head)
       (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
       (when magit-refresh-verbose
         (message "Refreshing magit...done (%.3fs, cached %s/%s)"
@@ -712,6 +714,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                  (+ (caar magit--refresh-cache)
                     (cdar magit--refresh-cache)))))))
 
+;; TODO run other hooks too
 (defun magit-refresh-all ()
   "Refresh all buffers belonging to the current repository.
 
@@ -725,6 +728,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (dolist (buffer (magit-mode-get-buffers))
     (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-auto-revert-buffers)
+  (magit-refresh-file-visiting-buffers "force")
   (magit-run-hook-with-benchmark 'magit-post-refresh-hook))
 
 (defvar-local magit-refresh-start-time nil)
@@ -788,6 +792,39 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                  (regexp-quote (buffer-substring-no-properties
                                                 beg (line-end-position))))
                                 (t t)))))))))
+
+;;; Refresh File-Visiting Buffers
+
+(defun magit-refresh-file-visiting-buffers (head)
+  (let (start topdir)
+    (when (and magit-refresh-file-visiting-buffers-hook
+               (setq topdir (magit-toplevel)))
+      (with-local-quit
+        (when magit-refresh-verbose
+          (setq start (current-time))
+          (message "Running magit-refresh-file-visiting-buffers-hook..."))
+        (run-hook-with-args
+         'magit-refresh-file-visiting-buffers-hook
+         (if (member head (list nil (magit-rev-parse "HEAD")))
+             (--keep (find-buffer-visiting (expand-file-name it topdir))
+                     (magit-modified-files))
+           (let ((gitdir (magit-git-dir)))
+             (--filter
+              (with-current-buffer it
+                (and buffer-file-name
+                     (file-in-directory-p buffer-file-name topdir)
+                     (not (file-in-directory-p buffer-file-name gitdir))))
+              (buffer-list)))))
+        (when magit-refresh-verbose
+          (message "Running %s...done (%.3fs)"
+                   'magit-refresh-file-visiting-buffers-hook
+                   (float-time (time-subtract (current-time) start))))))))
+
+(add-hook 'magit-refresh-file-visiting-buffers-hook 'diff-hl-update-buffers)
+(defun diff-hl-update-buffers (buffers)
+  (dolist (buf buffers)
+    (with-current-buffer buf
+      (diff-hl-update))))
 
 ;;; Save File-Visiting Buffers
 
