@@ -572,7 +572,9 @@ With a prefix argument or when `--follow' is part of
                          (1- (line-number-at-pos (region-beginning)))
                          (1- (line-number-at-pos (region-end))))
                  (list current-prefix-arg)))
-  (-if-let (file (magit-file-relative-name))
+  (-if-let (file (or (magit-file-relative-name)
+                     (and (derived-mode-p 'dired-mode)
+                          (magit-file-relative-name default-directory))))
       (magit-mode-setup #'magit-log-mode
                         (list (or magit-buffer-refname
                                   (magit-get-current-branch) "HEAD"))

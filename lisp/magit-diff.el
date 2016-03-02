@@ -563,7 +563,9 @@ This is a variant of `magit-diff-popup' which shows the same popup
 but which limits the diff to the file being visited in the current
 buffer."
   (interactive "P")
-  (-if-let (file (magit-file-relative-name))
+  (-if-let (file (or (magit-file-relative-name)
+                     (and (derived-mode-p 'dired-mode)
+                          (magit-file-relative-name default-directory))))
       (let ((magit-diff-arguments
              (magit-popup-import-file-args
               (-if-let (buffer (magit-mode-get-buffer 'magit-diff-mode))
