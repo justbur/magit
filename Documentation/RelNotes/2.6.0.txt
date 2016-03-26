@@ -45,6 +45,12 @@ Updates since v2.5.0
   `magit-insert-unpushed-module-commits' to
   `magit-insert-modules-unpushed-to-upstream'.
 
+* Added new option `magit-branch-separate-config-popup', which allows
+  moving the various branching related Git variables from the popup
+  `magit-branch-popup' to a new separate `magit-branch-config-popup'.
+  In that case both `magit-branch-popup' and `magit-push-popup' gain
+  a binding for `magit-branch-config-popup'.
+
 * If `magit-push-current-set-remote-if-missing's value is `default',
   then the command `magit-push-current-to-pushremote' now offers to
   set `remote.pushDefault' unless the push-remote is already set in

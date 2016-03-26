@@ -431,7 +431,11 @@ removed after restarting Emacs."
              (?T "a tag"             magit-push-tag)
              (?r "explicit refspecs" magit-push-refspecs)
              (?t "all tags"          magit-push-tags)
-             (?m "matching branches" magit-push-matching))
+             (?m "matching branches" magit-push-matching)
+             (lambda ()
+               (and magit-branch-separate-config-popup
+                    (propertize "Configure" 'face 'magit-popup-heading)))
+             (?C "branch variables"  magit-branch-config-popup))
   :max-action-columns 2)
 
 (defun magit-git-push (branch target args)

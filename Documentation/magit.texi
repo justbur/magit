@@ -4252,7 +4252,35 @@ push-remote and/or upstream while pushing (see @ref{Pushing,Pushing}).
 This prefix command shows the following suffix commands in a popup
 buffer.  It also displays the values of the following variables and
 allows changing their values.
+
 @end table
+
+@cindex magit-branch-config-popup
+@deffn Command magit-branch-config-popup
+
+This prefix command displays the values of the following variables
+and allows changing their values.
+
+Unlike @code{magit-branch-popup} it only features these variables and does
+not show any actions.  Also no key is bound to it by default.
+@end deffn
+
+@defopt magit-branch-separate-config-popup
+
+This option controls whether Git variables related to branching are
+shown directly in the main branch popup or in a separate popup.
+
+If this is @code{nil} (the default), then @code{magit-branch-popup} displays the
+values of the following variables and allows changing their values.
+
+If this is non-nil, then that popup does not show these variables.
+Instead @code{C} is bound to the separate @code{magit-branch-config-popup} command
+in @code{magit-branch-popup} as well as in @code{magit-push-popup}.
+
+This is useful if you find the main branch popup to be too noisy
+otherwise and on Windows where determining the values of the
+variables can lead to a small but still noticable delay.
+@end defopt
 
 The following variables are used to configure a specific branch.  The
 values are being displayed for the current branch (if any).  To change
