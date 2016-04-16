@@ -30,7 +30,7 @@
 
 (require 'git-commit)
 (eval-when-compile
-  (require 'magit-section))
+  (require 'asection))
 (require 'magit-core)
 
 ;; For `magit-diff-popup'
