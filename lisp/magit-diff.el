@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'git-commit)
+(require 'magit-section)
 (require 'magit-core)
 
 ;; For `magit-diff-popup'
