@@ -29,6 +29,8 @@
 ;;; Code:
 
 (require 'git-commit)
+(eval-when-compile
+  (require 'magit-section))
 (require 'magit-core)
 
 ;; For `magit-diff-popup'
